@@ -11,7 +11,7 @@ namespace GPLCraft
             this.seed = seed;
         }
 
-        public float[,] GenerateHeight(int cx, int cz)
+        private float[,] GenerateHeight(int cx, int cz)
         {
             SimplexNoise.Noise.Seed = seed;
             int x = 16, z = 16;
@@ -28,6 +28,25 @@ namespace GPLCraft
             }
 
             return noiseValues;
+        }
+
+        public Chunk GenerateChunk(int cx, int cz)
+        {
+            float[,] heights = GenerateHeight(cx, cz);
+            Chunk c = new Chunk(cx, cz);
+            for (int i = 0; i < 16; i++)
+            {
+                for (int j = 0; j < 16; j++)
+                {
+                    for (int k = 0; k < heights[i, j]; k++)
+                    {
+                        // dirt block
+                        Block d = new Block(1);
+                        c.SetBlock(i, j, k, d);
+                    }
+                }
+            }
+            return c;
         }
     }
 }
