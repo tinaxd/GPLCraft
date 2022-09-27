@@ -26,16 +26,23 @@ public class Player : Spatial
     // Called every frame. 'delta' is the elapsed time since the previous frame.
     public override void _Process(float delta)
     {
-        var inputVelocity = Input.GetVector("move_left", "move_right", "move_back", "move_forward");
+        var inputVelocity = Input.GetVector("move_left", "move_right", "move_forward", "move_back");
+        var localInputVelocity = new Vector3(inputVelocity.x, 0, inputVelocity.y);
 
-        var playerVelocity = new Vector3();
-        playerVelocity.x = inputVelocity.x;
-        playerVelocity.z = inputVelocity.y;
+        var localBasis = Transform.basis;
+        // var localInputVelocity = localBasis.XformInv(globalInputVelocity);
+
+        // convert to velocity in global coordinate
+        var globalInputVelocity = localBasis.Xform(localInputVelocity);
+        // set y=0 (prohibit vertical movement)
+        globalInputVelocity.y = 0;
+        // convert to back to local coordinate
+        localInputVelocity = localBasis.XformInv(globalInputVelocity);
 
         var velocity = 2;
-        playerVelocity *= delta * velocity;
+        localInputVelocity = localInputVelocity.Normalized() * velocity * delta;
 
-        Translate(playerVelocity);
+        Translate(localInputVelocity);
     }
 
     public override void _Input(InputEvent @event)
