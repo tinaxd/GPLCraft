@@ -29,6 +29,8 @@ public class Player : Spatial
         var inputVelocity = Input.GetVector("move_left", "move_right", "move_forward", "move_back");
         var localInputVelocity = new Vector3(inputVelocity.x, 0, inputVelocity.y);
 
+        var downUpVelocity = Input.GetAxis("move_down", "move_up");
+
         var localBasis = Transform.basis;
         // var localInputVelocity = localBasis.XformInv(globalInputVelocity);
 
@@ -36,11 +38,15 @@ public class Player : Spatial
         var globalInputVelocity = localBasis.Xform(localInputVelocity);
         // set y=0 (prohibit vertical movement)
         globalInputVelocity.y = 0;
+
+        // set magnitude
+        var velocity = 5;
+        globalInputVelocity = globalInputVelocity.Normalized() * velocity * delta;
+
+        globalInputVelocity.y = downUpVelocity * velocity * delta;
+
         // convert to back to local coordinate
         localInputVelocity = localBasis.XformInv(globalInputVelocity);
-
-        var velocity = 2;
-        localInputVelocity = localInputVelocity.Normalized() * velocity * delta;
 
         Translate(localInputVelocity);
     }
