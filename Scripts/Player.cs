@@ -1,0 +1,84 @@
+using Godot;
+using System;
+
+public class Player : Spatial
+{
+    // Declare member variables here. Examples:
+    // private int a = 2;
+    // private string b = "text";
+
+    private Camera camera;
+
+    // private Vector2? lastPosition;
+
+    private float cameraAngleX = 0f;
+    private float cameraAngleY = 0f;
+
+    // Called when the node enters the scene tree for the first time.
+    public override void _Ready()
+    {
+        camera = GetNode<Camera>("Camera");
+
+        // hide mouse cursor
+        Input.MouseMode = Input.MouseModeEnum.Captured;
+    }
+
+    // Called every frame. 'delta' is the elapsed time since the previous frame.
+    public override void _Process(float delta)
+    {
+        var inputVelocity = Input.GetVector("move_left", "move_right", "move_back", "move_forward");
+
+        var playerVelocity = new Vector3();
+        playerVelocity.x = inputVelocity.x;
+        playerVelocity.z = inputVelocity.y;
+
+        var velocity = 2;
+        playerVelocity *= delta * velocity;
+
+        Translate(playerVelocity);
+    }
+
+    public override void _Input(InputEvent @event)
+    {
+        if (@event is InputEventMouseMotion motion)
+        {
+            var d = motion.Relative;
+
+            float ySensitivity = 0.005f;
+            float xSensitivity = 0.005f;
+
+            cameraAngleX += xSensitivity * d.x;
+            cameraAngleY += ySensitivity * d.y;
+
+            if (cameraAngleX > Mathf.Pi)
+            {
+                cameraAngleX -= 2 * Mathf.Pi;
+            }
+            else if (cameraAngleX < -Mathf.Tau)
+            {
+                cameraAngleX += 2 * Mathf.Pi;
+            }
+
+            if (cameraAngleY > Mathf.Pi / 2)
+            {
+                cameraAngleY = Mathf.Pi / 2;
+            }
+            else if (cameraAngleY < -Mathf.Pi / 2)
+            {
+                cameraAngleY = -Mathf.Pi / 2;
+            }
+
+            var target = new Vector3()
+            {
+                x = Mathf.Cos(cameraAngleY) * Mathf.Sin(cameraAngleX),
+                y = -Mathf.Sin(cameraAngleY),
+                z = -Mathf.Cos(cameraAngleY) * Mathf.Cos(cameraAngleX)
+            };
+
+            var trans = this.Transform;
+            target += trans.origin;
+            trans = trans.LookingAt(target, Vector3.Up);
+            this.Transform = trans;
+        }
+    }
+}
