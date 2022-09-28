@@ -35,7 +35,7 @@ func _process(delta):
 	global_input.y = 0
 
 	# set magnitude
-	var velocity = 5
+	var velocity = 10
 	global_input = global_input.normalized() * velocity * delta
 	
 	global_input.y = down_up_velocity * velocity * delta
