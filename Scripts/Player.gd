@@ -41,6 +41,51 @@ func _process(delta):
 	
 	pointer_lock_check()
 
+func _wallcheck(v: Vector3, cx: int, cz: int, rx: float, ry: float, rz: float, ch: Chunk) -> Vector3:
+	var dirs = [
+		[1, 0], [-1, 0], [0, 1], [0, -1]
+	]
+	
+	var rfx = int(rx)
+	var rfy = int(ry)
+	var rfz = int(rz)
+	
+	for dir in dirs:
+		var nx = rfx + dir[0]
+		var ny = rfy
+		var nz = rfx + dir[1]
+		
+		# cross chunk check
+		var ncx = cx
+		var ncz = cz
+		var cross_chunk = false
+		
+		if nx >= Chunk.SIZE_X:
+			nx -= Chunk.SIZE_X
+			ncx += 1
+			cross_chunk = true
+		elif nx < 0:
+			nx += Chunk.SIZE_X
+			ncx -= 1
+			cross_chunk = true
+		
+		if nz >= Chunk.SIZE_Z:
+			nz -= Chunk.SIZE_Z
+			ncz += 1
+			cross_chunk = true
+		elif nz < 0:
+			nz += Chunk.SIZE_Z
+			ncz -= 1
+			cross_chunk = true
+		
+		var nc: Chunk
+		if not cross_chunk:
+			nc = ch
+		else:
+			nc = main.world.load_or_create_chunk(ncx, ncz)
+		
+		
+
 func _survival_process(delta: float) -> void:
 	# get current chunk
 	var cxcz = get_current_chunk()
