@@ -10,11 +10,14 @@ class_name WorldGen
 var seed_value: int
 var perlin: OpenSimplexNoise
 
+var _gen_lock: Mutex
+
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	pass # Replace with function body.
 
 func _init(seed_v: int):
+	_gen_lock = Mutex.new()
 	self.seed_value = seed_v
 	
 	perlin = OpenSimplexNoise.new()
@@ -38,6 +41,7 @@ func _generate_height(cx: int, cz: int) -> Array:
 	return noise_values
 
 func generate_chunk(cx: int, cz: int) -> Chunk:
+	_gen_lock.lock()
 	var heights = _generate_height(cx, cz)
 	var c = Chunk.new(cx, cz)
 	for i in range(Chunk.SIZE_X):
@@ -48,6 +52,7 @@ func generate_chunk(cx: int, cz: int) -> Chunk:
 				var b = Block.new(1)
 				c.set_block_pos(i, j, k, b)
 	
+	_gen_lock.unlock()
 	return c
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.

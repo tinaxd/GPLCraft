@@ -10,9 +10,19 @@ onready var camera = $Camera
 var camera_angle_x: float = 0
 var camera_angle_y: float = 0
 
+const gravity_y = -5.0
+
+var survival_mode: bool = true
+
+var velocity: Vector3 = Vector3.ZERO
+
+var main = null # TestMain instance
+
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
+	
+	main = get_node("/root/Spatial")
 
 func pointer_lock_check():
 	if Input.is_action_just_pressed("ui_cancel"):
@@ -22,6 +32,57 @@ func pointer_lock_check():
 			Input.mouse_mode = Input.MOUSE_MODE_CAPTURED
 
 func _process(delta):
+	if survival_mode:
+		_survival_process(delta)
+	else:
+		_creative_process(delta)
+	
+	pointer_lock_check()
+
+func _survival_process(delta: float) -> void:
+	# get current chunk
+	var cxcz = get_current_chunk()
+	var cx = cxcz[0]
+	var cz = cxcz[1]
+	
+	# user input
+	var input_velocity =Input.get_vector("move_left","move_right","move_forward","move_back")
+	var local_input = Vector3(input_velocity.x, 0, input_velocity.y)
+	# conver to velocity in global space
+	var global_input = transform.basis.xform(local_input)
+	# set y=0
+	global_input.y = 0
+	# set magnitude
+	var velocity = 10
+	global_input = global_input.normalized() * velocity * delta
+	var local_input_velocity = transform.basis.xform_inv(global_input)
+	
+	var chunk: Chunk = main.world.get_loaded_chunk(cx, cz)
+	if chunk == null:
+		return
+	
+	# is_landed check
+	var rpos = position_in_chunk()
+	var rfx = int(rpos[0])
+	var rfy = int(rpos[1])
+	var rfz = int(rpos[2])
+	var is_landed = false
+	if rfz < 0:
+		is_landed = true
+	else:
+		var bottom_block = chunk.get_block_pos(rfx, rfy, rfz-1)
+		is_landed = bottom_block.block_id != 0
+	
+	velocity = local_input_velocity
+	if is_landed:
+		velocity.y = 0
+	else:
+		velocity += Vector3(0, gravity_y, 0)
+	
+	var local_velocity = transform.basis.xform_inv(velocity)
+	translate(local_velocity*delta)
+
+func _creative_process(delta: float) -> void:
 	var input_velocity =Input.get_vector("move_left","move_right","move_forward","move_back")
 	var local_input = Vector3(input_velocity.x, 0, input_velocity.y)
 	
@@ -44,8 +105,6 @@ func _process(delta):
 	local_input = local_basis.xform_inv(global_input)
 	
 	translate(local_input)
-	
-	pointer_lock_check()
 
 func _input(event):
 	if event is InputEventMouseMotion:
@@ -86,6 +145,17 @@ func get_current_chunk() -> Array:
 	var cx = int(pos.x/Chunk.SIZE_X)
 	var cz = int(pos.z/Chunk.SIZE_Z)
 	return [cx, cz]
+
+# returns [rx, ry, rz]
+func position_in_chunk() -> Array:
+	var pos = transform.origin
+	var rx = fmod(pos.x, Chunk.SIZE_X)
+	var ry = pos.y
+	var rz = fmod(pos.z, Chunk.SIZE_Z)
+	return [rx, ry, rz]
+
+func set_global_position(pos: Vector3) -> void:
+	transform.origin = pos
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 #func _process(delta):

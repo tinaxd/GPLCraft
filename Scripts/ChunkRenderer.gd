@@ -24,7 +24,8 @@ func get_chunk() -> Chunk:
 func _ready():
 	mesh_instance = MeshInstance.new()
 	
-	add_child(mesh_instance)
+	call_deferred("add_child", mesh_instance)
+#	add_child(mesh_instance)
 
 func set_chunk_location(cx: int, cz: int) -> void:
 	_dirty = true
@@ -124,6 +125,7 @@ func _block_exists(x: int, y: int, z: int) -> bool:
 func _generate_mesh() -> Mesh:
 	var st = SurfaceTool.new()
 	st.begin(Mesh.PRIMITIVE_TRIANGLES)
+#	print_debug("before loop")
 	for i in range(Chunk.SIZE_X):
 		for j in range(Chunk.SIZE_Y):
 			for k in range(Chunk.SIZE_Z):
@@ -146,6 +148,7 @@ func _generate_mesh() -> Mesh:
 				if _block_exists(i, j, k+1):
 					faces &= ~ZPOSF
 				_add_faces(st, faces, i, j, k)
+#	print_debug("after loop")
 	return st.commit()
 
 func _render_chunk() -> void:
@@ -154,7 +157,9 @@ func _render_chunk() -> void:
 	if not _dirty:
 		return
 	
+#	print_debug("generate_mesh before")
 	var mesh = _generate_mesh()
+#	print_debug("generate_mesh after")
 	
 	mesh_instance.mesh = mesh
 	mesh_instance.material_override = block_material

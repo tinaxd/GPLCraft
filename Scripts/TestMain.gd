@@ -12,10 +12,8 @@ onready var w_renderer: WorldRenderer = get_node("WorldOrigin")
 var world: WorldData = null
 onready var player: Player = get_node("Player")
 
-var loaded_chunks = [] # array of chunks
-
-var chunk_load_limit_x = 2
-var chunk_load_limit_z = 2
+var chunk_load_limit_x = 1
+var chunk_load_limit_z = 1
 
 var last_chunk_x = 0
 var last_chunk_z = 0
@@ -31,6 +29,7 @@ func _ready():
 	world = WorldData.new(5)
 
 	load_chunk_around(0, 0)
+	player.set_global_position(Vector3(0, 75, 0))
 #	var c1 = gen.generate_chunk(0, 1)
 #	var c2 = gen.generate_chunk(0, 0)
 #	w_renderer.render_chunk(c1)
@@ -61,7 +60,7 @@ func chunk_load_check() -> void:
 		
 		last_chunk_x = cx
 		last_chunk_z = cz
-	
+
 func load_chunk_around(cx: int, cz: int) -> void:
 	print_debug("start load_chunk_around("+str(cx)+","+str(cz)+")")
 	var x1 = cx - chunk_load_limit_x

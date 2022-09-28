@@ -30,6 +30,16 @@ func load_or_create_chunk(cx: int, cz: int) -> Chunk:
 	_loaded_chunks_lock.unlock()
 	return c
 
+func get_loaded_chunk(cx: int, cz: int) -> Chunk:
+	_loaded_chunks_lock.lock()
+	for _chunk in loaded_chunks:
+		var chunk: Chunk = _chunk
+		if chunk.cx == cx and chunk.cz == cz:
+			_loaded_chunks_lock.unlock()
+			return chunk
+	_loaded_chunks_lock.unlock()
+	return null
+
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 #func _process(delta):
 #	pass
