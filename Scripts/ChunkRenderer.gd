@@ -41,56 +41,56 @@ static func _add_face(s: SurfaceTool, face: int, x: int, y: int,z: int)->void:
 		XPOSF:
 			var norm = Vector3(1, 0, 0)
 			_av(s, 1, 0, 1, x, y, z, norm)
-			_av(s, 1, 0, 0, x, y, z, norm)
+			_av(s, 1, 1, 1, x, y, z, norm)
 			_av(s, 1, 1, 0, x, y, z, norm)
 			
 			_av(s, 1, 1, 0, x, y, z, norm)
-			_av(s, 1, 1, 1, x, y, z, norm)
+			_av(s, 1, 0, 0, x, y, z, norm)
 			_av(s, 1, 0, 1, x, y, z, norm)
 		YNEGF:
 			var norm = Vector3(0, 1, 0)
 			_av(s, 0, 0, 1, x, y, z, norm)
-			_av(s, 0, 0, 0, x, y, z, norm)
+			_av(s, 1, 0, 1, x, y, z, norm)
 			_av(s, 1, 0, 0, x, y, z, norm)
 			
 			_av(s, 1, 0, 0, x, y, z, norm)
-			_av(s, 1, 0, 1, x, y, z, norm)
+			_av(s, 0, 0, 0, x, y, z, norm)
 			_av(s, 0, 0, 1, x, y, z, norm)
 		XNEGF:
 			var norm = Vector3(-1, 0, 0)
 			_av(s, 0, 1, 1, x, y, z, norm)
-			_av(s, 0, 1, 0, x, y, z, norm)
+			_av(s, 0, 0, 1, x, y, z, norm)
 			_av(s, 0, 0, 0, x, y, z, norm)
 			
 			_av(s, 0, 0, 0, x, y, z, norm)
-			_av(s, 0, 0, 1, x, y, z, norm)
+			_av(s, 0, 1, 0, x, y, z, norm)
 			_av(s, 0, 1, 1, x, y, z, norm)
 		YPOSF:
 			var norm = Vector3(0, 1, 0)
 			_av(s, 1, 1, 1, x, y, z, norm)
-			_av(s, 1, 1, 0, x, y, z, norm)
+			_av(s, 0, 1, 1, x, y, z, norm)
 			_av(s, 0, 1, 0, x, y, z, norm)
 			
 			_av(s, 0, 1, 0, x, y, z, norm)
-			_av(s, 0, 1, 1, x, y, z, norm)
+			_av(s, 1, 1, 0, x, y, z, norm)
 			_av(s, 1, 1, 1, x, y, z, norm)
 		ZPOSF:
 			var norm = Vector3(0, 0, 1)
 			_av(s, 0, 1, 1, x, y, z, norm)
-			_av(s, 0, 0, 1, x, y, z, norm)
+			_av(s, 1, 1, 1, x, y, z, norm)
 			_av(s, 1, 0, 1, x, y, z, norm)
 			
 			_av(s, 1, 0, 1, x, y, z, norm)
-			_av(s, 1, 1, 1, x, y, z, norm)
+			_av(s, 0, 0, 1, x, y, z, norm)
 			_av(s, 0, 1, 1, x, y, z, norm)
 		ZNEGF:
 			var norm = Vector3(0, 0, -1)
 			_av(s, 0, 0, 0, x, y, z, norm)
-			_av(s, 0, 1, 0, x, y, z, norm)
+			_av(s, 1, 0, 0, x, y, z, norm)
 			_av(s, 1, 1, 0, x, y, z, norm)
 			
 			_av(s, 1, 1, 0, x, y, z, norm)
-			_av(s, 1, 0, 0, x, y, z, norm)
+			_av(s, 0, 1, 0, x, y, z, norm)
 			_av(s, 0, 0, 0, x, y, z, norm)
 
 static func _add_faces(st: SurfaceTool, faces: int, x: int, y: int,z: int) -> void:
