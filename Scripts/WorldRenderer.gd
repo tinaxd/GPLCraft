@@ -7,6 +7,8 @@ extends Node
 
 const ChunkRenderer = preload("res://Scripts/ChunkRenderer.gd")
 
+var rendered_chunk_coords = {}
+
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	pass # Replace with function body.
@@ -14,7 +16,11 @@ func _ready():
 func render_chunk(c: Chunk) -> void:
 	var cx: int = c.cx
 	var cz: int = c.cz
-	print_debug("render_chunk called @" + str(cx) +","+str(cz))
+	var key = str(cx) + ',' + str(cz)
+	if rendered_chunk_coords.has(key):
+		return
+	rendered_chunk_coords[key] = true
+	print_debug("render_chunk start @" + str(cx) +","+str(cz))
 	
 	# spawn ChunkRenderer
 	var instance_spatial = Spatial.new()

@@ -80,6 +80,13 @@ func _input(event):
 		var new_trans = trans.looking_at(target, Vector3.UP)
 		transform = new_trans
 
+# returns [cx, cz]
+func get_current_chunk() -> Array:
+	var pos = transform.origin
+	var cx = int(pos.x/Chunk.SIZE_X)
+	var cz = int(pos.z/Chunk.SIZE_Z)
+	return [cx, cz]
+
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 #func _process(delta):
 #	pass
