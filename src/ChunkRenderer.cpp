@@ -3,12 +3,16 @@
 #include <ResourceLoader.hpp>
 #include <ArrayMesh.hpp>
 #include <Material.hpp>
+#include <Transform.hpp>
+#include <iostream>
 
 using namespace gplcraft;
 
 void ChunkRenderer::_register_methods()
 {
     godot::register_method("_ready", &ChunkRenderer::_ready);
+    godot::register_method("set_chunk_location", &ChunkRenderer::set_chunk_location);
+    godot::register_property<ChunkRenderer, godot::Variant>("chunk", &ChunkRenderer::set_chunk, &ChunkRenderer::get_chunk, godot::Variant());
 }
 
 void ChunkRenderer::_init()
@@ -17,22 +21,28 @@ void ChunkRenderer::_init()
 
 void ChunkRenderer::_ready()
 {
+    mesh_instance_ = godot::MeshInstance::_new();
+    add_child(mesh_instance_);
 }
 
 ChunkRenderer::~ChunkRenderer()
 {
-    if (chunk_ != nullptr)
-    {
-        chunk_->unreference();
-    }
+    delete mesh_instance_;
+    mesh_instance_ = nullptr;
 }
 
 void ChunkRenderer::render_chunk()
 {
-    if (chunk_ == nullptr)
+    std::cout << "render_chunk (C++) is called" << std::endl;
+    if (chunk_.get_type() == chunk_.NIL)
+    {
+        std::cout << "chunk is null" << std::endl;
         return;
+    }
     if (!dirty_)
         return;
+
+    std::cout << "chunk is dirty, rendering..." << std::endl;
 
     auto mesh = generate_mesh();
 
@@ -44,7 +54,7 @@ void ChunkRenderer::render_chunk()
     dirty_ = false;
 }
 
-constexpr int ALL_FACES = XNEGF | XPOSF | YNEGF | YPOSF | ZNEGF | ZPOSF;
+constexpr unsigned int ALL_FACES = XNEGF | XPOSF | YNEGF | YPOSF | ZNEGF | ZPOSF;
 
 static void _av(godot::Ref<godot::SurfaceTool> st, int x, int y, int z, int bx, int by, int bz, godot::Vector3 normal, int ux, int uy)
 {
@@ -52,7 +62,7 @@ static void _av(godot::Ref<godot::SurfaceTool> st, int x, int y, int z, int bx, 
     float uyf = (16.0 / 256.0) * (15 + (1 - uy));
     st->add_uv(godot::Vector2(uxf, uyf));
     st->add_normal(normal);
-    st->add_vertex(godot::Vector3(x, y, z));
+    st->add_vertex(godot::Vector3(x + bx, y + by, z + bz));
 }
 
 static void add_face(godot::Ref<godot::SurfaceTool> s, int face, int x, int y, int z)
@@ -73,7 +83,7 @@ static void add_face(godot::Ref<godot::SurfaceTool> s, int face, int x, int y, i
     }
     case YNEGF:
     {
-        auto norm = godot::Vector3(0, 1, 0);
+        auto norm = godot::Vector3(0, -1, 0);
         _av(s, 0, 0, 1, x, y, z, norm, 0, 1);
         _av(s, 1, 0, 1, x, y, z, norm, 1, 1);
         _av(s, 1, 0, 0, x, y, z, norm, 1, 0);
@@ -136,8 +146,8 @@ static void add_face(godot::Ref<godot::SurfaceTool> s, int face, int x, int y, i
 
 static void add_faces(godot::Ref<godot::SurfaceTool> st, int faces, int x, int y, int z)
 {
-    auto f = [faces](int f)
-    { return faces & f != 0; };
+    auto f = [faces](int face)
+    { return (faces & face) != 0; };
     if (f(XNEGF))
     {
         add_face(st, XNEGF, x, y, z);
@@ -170,6 +180,8 @@ godot::Ref<godot::Mesh> ChunkRenderer::generate_mesh()
     st.instance();
 
     st->begin(godot::Mesh::PRIMITIVE_TRIANGLES);
+    auto chunk_obj = get_chunk_obj();
+    int count = 0;
     for (int i = 0; i < 16; i++)
     {
         for (int j = 0; j < 128; j++)
@@ -180,7 +192,7 @@ godot::Ref<godot::Mesh> ChunkRenderer::generate_mesh()
                 args.append(i);
                 args.append(j);
                 args.append(k);
-                auto result = chunk_->call("get_block_pos", args);
+                auto result = chunk_obj->call("get_block_pos", args);
                 ERR_MSG_COND(result.get_type() != result.OBJECT);
                 godot::Object *block = result;
                 ERR_MSG_COND(block == nullptr);
@@ -192,7 +204,8 @@ godot::Ref<godot::Mesh> ChunkRenderer::generate_mesh()
                     continue;
                 }
 
-                int faces = ALL_FACES;
+                count++;
+                unsigned int faces = ALL_FACES;
                 if (block_exists(i - 1, j, k))
                 {
                     faces &= ~XNEGF;
@@ -217,9 +230,12 @@ godot::Ref<godot::Mesh> ChunkRenderer::generate_mesh()
                 {
                     faces &= ~ZPOSF;
                 }
+                std::cerr << faces << std::endl;
+                add_faces(st, faces, i, j, k);
             }
         }
     }
+    std::cerr << "calculated " << count << " blocks" << std::endl;
 
     return st->commit();
 }
@@ -232,15 +248,27 @@ bool ChunkRenderer::block_exists(int x, int y, int z)
     }
 
     godot::Array args;
-    args.append(x);
-    args.append(y);
-    args.append(z);
-    auto o = chunk_->call("get_block_pos", args);
+    args.resize(3);
+    args[0] = x;
+    args[1] = y;
+    args[2] = z;
+    auto o = get_chunk_obj()->call("get_block_pos", args);
     ERR_MSG_COND(o.get_type() != o.OBJECT);
 
     godot::Object *block = o;
     ERR_MSG_COND(block == nullptr);
 
-    int block_id = block->get("block_id");
+    auto block_id_v = block->get("block_id");
+    ERR_MSG_COND(block_id_v.get_type() != block_id_v.INT);
+    int block_id = block_id_v;
+    // std::cerr << block_id << std::endl;
     return block_id != 0;
+}
+
+void ChunkRenderer::set_chunk_location(int cx, int cz)
+{
+    dirty_ = true;
+    auto t = godot::Transform::IDENTITY;
+    auto t2 = t.translated(godot::Vector3(cx * 16, 0, cz * 16));
+    set_transform(t2);
 }

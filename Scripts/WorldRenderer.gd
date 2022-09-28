@@ -5,7 +5,7 @@ extends Node
 # var a = 2
 # var b = "text"
 
-const ChunkRenderer = preload("res://Scripts/ChunkRenderer.gd")
+const ChunkRenderer = preload("res://Scripts/ChunkRenderer.gdns")
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
@@ -29,7 +29,7 @@ func render_chunk(c: Chunk) -> void:
 	instance.set_chunk_location(cx, cz)
 	
 	# set and render chunk
-	instance.set_chunk(c)
+	instance.chunk = c
 
 # Called every frame. 'delta' is the elapsed time since the previous frame.
 #func _process(delta):

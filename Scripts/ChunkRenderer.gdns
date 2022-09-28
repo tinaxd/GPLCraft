@@ -1,8 +1,8 @@
-[gd_resource type="NativeScript" format=2 load_steps=2]
+[gd_resource type="NativeScript" load_steps=2 format=2]
 
 [ext_resource path="res://gplcraft.gdnlib" type="GDNativeLibrary" id=1]
 
 [resource]
 resource_name = "ChunkRenderer"
 class_name = "ChunkRenderer"
-library = ExtResource(1)
+library = ExtResource( 1 )

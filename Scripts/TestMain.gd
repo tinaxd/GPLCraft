@@ -18,16 +18,16 @@ func _ready():
 			var c = gen.generate_chunk(x, z)
 			chunks.append(c)
 
-	var not_same_count = 0
-	for i in range(16):
-		for j in range(128):
-			for k in range(16):
-				var c1: Chunk = chunks[0]
-				var c2: Chunk = chunks[1]
-				if c1.get_block_pos(i,j,k).block_id != c2.get_block_pos(i,j,k).block_id:
-					not_same_count+=1
-					print_debug("notsame y: "+ str(j))
-	print_debug('not_same_count: ' + str(not_same_count))
+#	var not_same_count = 0
+#	for i in range(16):
+#		for j in range(128):
+#			for k in range(16):
+#				var c1: Chunk = chunks[0]
+#				var c2: Chunk = chunks[1]
+#				if c1.get_block_pos(i,j,k).block_id != c2.get_block_pos(i,j,k).block_id:
+#					not_same_count+=1
+#					print_debug("notsame y: "+ str(j))
+#	print_debug('not_same_count: ' + str(not_same_count))
 
 	for chunk in chunks:
 		w_renderer.render_chunk(chunk)

@@ -8,7 +8,7 @@
 
 namespace gplcraft
 {
-    enum
+    enum : unsigned int
     {
         XNEGF = 1,
         XPOSF = 2,
@@ -23,15 +23,22 @@ namespace gplcraft
         GODOT_CLASS(ChunkRenderer, godot::Spatial)
 
     private:
-        godot::Reference *chunk_ = nullptr;
+        godot::Variant chunk_;
         bool dirty_ = false;
-        godot::MeshInstance *mesh_instance_ = nullptr;
+        godot::MeshInstance *mesh_instance_;
 
         void render_chunk();
 
         godot::Ref<godot::Mesh> generate_mesh();
 
         bool block_exists(int x, int y, int z);
+
+        godot::Object *get_chunk_obj()
+        {
+            ERR_MSG_COND(chunk_.get_type() != chunk_.OBJECT);
+            godot::Object *obj = chunk_;
+            return obj;
+        }
 
     public:
         ~ChunkRenderer();
@@ -42,18 +49,13 @@ namespace gplcraft
 
         void _ready();
 
-        godot::Reference *get_chunk()
+        godot::Variant get_chunk()
         {
             return chunk_;
         }
 
-        void set_chunk(godot::Reference *chunk)
+        void set_chunk(godot::Variant chunk)
         {
-            if (chunk_ != nullptr)
-            {
-                chunk_->unreference();
-            }
-            chunk->reference();
             chunk_ = chunk;
             dirty_ = true;
             render_chunk();
