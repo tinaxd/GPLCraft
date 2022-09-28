@@ -23,9 +23,11 @@ func load_or_create_chunk(cx: int, cz: int) -> Chunk:
 		if chunk.cx == cx and chunk.cz == cz:
 			_loaded_chunks_lock.unlock()
 			return chunk
+	_loaded_chunks_lock.unlock()
 	
 	# if not found
 	var c = gen.generate_chunk(cx, cz)
+	_loaded_chunks_lock.lock()
 	loaded_chunks.append(c)
 	_loaded_chunks_lock.unlock()
 	return c

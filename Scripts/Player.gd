@@ -65,22 +65,28 @@ func _survival_process(delta: float) -> void:
 	# is_landed check
 	var rpos = position_in_chunk()
 	var rfx = int(rpos[0])
-	var rfy = int(rpos[1])
+	var rfy = int(rpos[1]-1)
 	var rfz = int(rpos[2])
 	var is_landed = false
 	if rfy < 0:
 		is_landed = true
 	else:
-		var bottom_block = chunk.get_block_pos(rfx, rfy-1, rfz)
+		var bottom_block = chunk.get_block_pos(rfx, rfy, rfz)
 		is_landed = bottom_block.block_id != 0
 	
 	velocity = global_input
 	if is_landed:
-		velocity.y = 0
+		# jump check
+		var jumped = Input.is_action_just_pressed("move_jump")
+		if jumped:
+			var jump_velocity = 50
+			velocity.y = jump_velocity
+		else:	
+			velocity.y = 0
 	else:
 		velocity += Vector3(0, gravity_y, 0)
 	
-	emit_signal("position_update", Vector3(cx*Chunk.SIZE_X+rfx, rfy, cz*Chunk.SIZE_Z+rfz), is_landed)
+	emit_signal("position_update", transform.origin, is_landed)
 	
 	var local_velocity = transform.basis.xform_inv(velocity)
 	translate(local_velocity*delta)
@@ -145,16 +151,20 @@ func _input(event):
 # returns [cx, cz]
 func get_current_chunk() -> Array:
 	var pos = transform.origin
-	var cx = int(pos.x/Chunk.SIZE_X)
-	var cz = int(pos.z/Chunk.SIZE_Z)
+	var cx = int(floor(pos.x/Chunk.SIZE_X))
+	var cz = int(floor(pos.z/Chunk.SIZE_Z))
 	return [cx, cz]
 
 # returns [rx, ry, rz]
 func position_in_chunk() -> Array:
 	var pos = transform.origin
 	var rx = fmod(pos.x, Chunk.SIZE_X)
+	if rx < 0:
+		rx += Chunk.SIZE_X
 	var ry = pos.y
 	var rz = fmod(pos.z, Chunk.SIZE_Z)
+	if rz < 0:
+		rz += Chunk.SIZE_Z
 	return [rx, ry, rz]
 
 func set_global_position(pos: Vector3) -> void:
