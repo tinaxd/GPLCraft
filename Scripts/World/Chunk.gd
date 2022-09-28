@@ -21,12 +21,12 @@ var blocks: Array # array of blocks
 func _ready():
 	pass # Replace with function body.
 
-func _init(cx: int, cz: int):
-	self.cx = cx
-	self.cz = cz
+func _init(cx_v: int, cz_v: int):
+	self.cx = cx_v
+	self.cz = cz_v
 	
 	# initialize with air blocks
-	for i in range(SIZE_X*SIZE_Y*SIZE_Z):
+	for _i in range(SIZE_X*SIZE_Y*SIZE_Z):
 		var b = Block.new(0)
 		blocks.append(b)
 

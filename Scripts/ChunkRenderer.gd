@@ -8,7 +8,7 @@ extends Spatial
 var _chunk: Chunk = null
 var _dirty = false
 
-onready var multimesh: MultiMeshInstance = get_node("multimesh")
+var multimesh: MultiMeshInstance
 
 func set_chunk(c: Chunk) -> void:
 	_chunk = c
@@ -20,7 +20,13 @@ func get_chunk() -> Chunk:
 
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	pass # Replace with function body.
+	multimesh = MultiMeshInstance.new()
+	var mesh = MultiMesh.new()
+	multimesh.multimesh = mesh
+	mesh.mesh = load("res://Meshes/Cube.tres")
+	mesh.transform_format = MultiMesh.TRANSFORM_3D
+	
+	add_child(multimesh)
 
 func set_chunk_location(cx: int, cz: int) -> void:
 	_dirty = true

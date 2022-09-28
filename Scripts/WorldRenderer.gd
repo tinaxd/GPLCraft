@@ -7,8 +7,6 @@ extends Node
 
 const ChunkRenderer = preload("res://Scripts/ChunkRenderer.gd")
 
-onready var _chunk_renderer: PackedScene = load("res://Scenes/ChunkRenderer.tscn")
-
 # Called when the node enters the scene tree for the first time.
 func _ready():
 	pass # Replace with function body.
@@ -16,9 +14,13 @@ func _ready():
 func render_chunk(c: Chunk) -> void:
 	var cx: int = c.cx
 	var cz: int = c.cz
+	print_debug("render_chunk called @" + str(cx) +","+str(cz))
 	
 	# spawn ChunkRenderer
-	var instance: ChunkRenderer = _chunk_renderer.instance()
+	var instance_spatial = Spatial.new()
+	instance_spatial.set_script(ChunkRenderer)
+	instance_spatial.name = "ChunkRenderer-" + str(cx) + "-" + str(cz)
+	var instance: ChunkRenderer = instance_spatial
 	
 	# add to scene
 	add_child(instance)
