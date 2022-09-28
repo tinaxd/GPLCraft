@@ -5,6 +5,8 @@ extends Spatial
 # var a = 2
 # var b = "text"
 
+signal position_update(pos, is_landed)
+
 onready var camera = $Camera
 
 var camera_angle_x: float = 0
@@ -53,9 +55,8 @@ func _survival_process(delta: float) -> void:
 	# set y=0
 	global_input.y = 0
 	# set magnitude
-	var velocity = 10
-	global_input = global_input.normalized() * velocity * delta
-	var local_input_velocity = transform.basis.xform_inv(global_input)
+	var svelocity = 10
+	global_input = global_input.normalized() * svelocity
 	
 	var chunk: Chunk = main.world.get_loaded_chunk(cx, cz)
 	if chunk == null:
@@ -67,17 +68,19 @@ func _survival_process(delta: float) -> void:
 	var rfy = int(rpos[1])
 	var rfz = int(rpos[2])
 	var is_landed = false
-	if rfz < 0:
+	if rfy < 0:
 		is_landed = true
 	else:
-		var bottom_block = chunk.get_block_pos(rfx, rfy, rfz-1)
+		var bottom_block = chunk.get_block_pos(rfx, rfy-1, rfz)
 		is_landed = bottom_block.block_id != 0
 	
-	velocity = local_input_velocity
+	velocity = global_input
 	if is_landed:
 		velocity.y = 0
 	else:
 		velocity += Vector3(0, gravity_y, 0)
+	
+	emit_signal("position_update", Vector3(cx*Chunk.SIZE_X+rfx, rfy, cz*Chunk.SIZE_Z+rfz), is_landed)
 	
 	var local_velocity = transform.basis.xform_inv(velocity)
 	translate(local_velocity*delta)
@@ -96,10 +99,10 @@ func _creative_process(delta: float) -> void:
 	global_input.y = 0
 
 	# set magnitude
-	var velocity = 10
-	global_input = global_input.normalized() * velocity * delta
+	var svelocity = 10
+	global_input = global_input.normalized() * svelocity * delta
 	
-	global_input.y = down_up_velocity * velocity * delta
+	global_input.y = down_up_velocity * svelocity * delta
 	
 	# convert back to local space
 	local_input = local_basis.xform_inv(global_input)
