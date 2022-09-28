@@ -1,0 +1,12 @@
+[gd_resource type="Shader" format=2]
+
+[resource]
+code = "shader_type spatial;
+
+uniform sampler2D tex;
+
+void fragment() {
+	ALBEDO = texture(tex, UV).rgb;
+//	ALBEDO = vec3(UV.x, UV.y, 0);
+}
+"

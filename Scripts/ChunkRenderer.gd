@@ -5,6 +5,8 @@ extends Spatial
 # var a = 2
 # var b = "text"
 
+onready var block_material = load("res://Materials/BlockMaterial.tres")
+
 var _chunk: Chunk = null
 var _dirty = false
 
@@ -32,7 +34,10 @@ func set_chunk_location(cx: int, cz: int) -> void:
 
 enum {XPOSF=1, XNEGF=2, YPOSF=4, YNEGF=8, ZPOSF=16, ZNEGF=32}
 
-static func _av(st: SurfaceTool, x: int, y: int, z: int, bx: int, by: int, bz: int, normal: Vector3) -> void:
+static func _av(st: SurfaceTool, x: int, y: int, z: int, bx: int, by: int, bz: int, normal: Vector3, ux: int, uy: int) -> void:
+	var uxf = (16.0/256.0) * (2 + (1 - ux))
+	var uyf = (16.0/256.0) * (15 + (1 - uy))
+	st.add_uv(Vector2(uxf, uyf))
 	st.add_normal(normal)
 	st.add_vertex(Vector3(x+bx, y+by, z+bz))
 
@@ -40,58 +45,58 @@ static func _add_face(s: SurfaceTool, face: int, x: int, y: int,z: int)->void:
 	match face:
 		XPOSF:
 			var norm = Vector3(1, 0, 0)
-			_av(s, 1, 0, 1, x, y, z, norm)
-			_av(s, 1, 1, 1, x, y, z, norm)
-			_av(s, 1, 1, 0, x, y, z, norm)
+			_av(s, 1, 0, 1, x, y, z, norm, 0, 1)
+			_av(s, 1, 1, 1, x, y, z, norm, 1, 1)
+			_av(s, 1, 1, 0, x, y, z, norm, 1, 0)
 			
-			_av(s, 1, 1, 0, x, y, z, norm)
-			_av(s, 1, 0, 0, x, y, z, norm)
-			_av(s, 1, 0, 1, x, y, z, norm)
+			_av(s, 1, 1, 0, x, y, z, norm, 1, 0)
+			_av(s, 1, 0, 0, x, y, z, norm, 0, 0)
+			_av(s, 1, 0, 1, x, y, z, norm, 0, 1)
 		YNEGF:
 			var norm = Vector3(0, 1, 0)
-			_av(s, 0, 0, 1, x, y, z, norm)
-			_av(s, 1, 0, 1, x, y, z, norm)
-			_av(s, 1, 0, 0, x, y, z, norm)
+			_av(s, 0, 0, 1, x, y, z, norm, 0, 1)
+			_av(s, 1, 0, 1, x, y, z, norm, 1, 1)
+			_av(s, 1, 0, 0, x, y, z, norm, 1, 0)
 			
-			_av(s, 1, 0, 0, x, y, z, norm)
-			_av(s, 0, 0, 0, x, y, z, norm)
-			_av(s, 0, 0, 1, x, y, z, norm)
+			_av(s, 1, 0, 0, x, y, z, norm, 1, 0)
+			_av(s, 0, 0, 0, x, y, z, norm, 0, 0)
+			_av(s, 0, 0, 1, x, y, z, norm, 0, 1)
 		XNEGF:
 			var norm = Vector3(-1, 0, 0)
-			_av(s, 0, 1, 1, x, y, z, norm)
-			_av(s, 0, 0, 1, x, y, z, norm)
-			_av(s, 0, 0, 0, x, y, z, norm)
+			_av(s, 0, 1, 1, x, y, z, norm, 0, 1)
+			_av(s, 0, 0, 1, x, y, z, norm, 1, 1)
+			_av(s, 0, 0, 0, x, y, z, norm, 1, 0)
 			
-			_av(s, 0, 0, 0, x, y, z, norm)
-			_av(s, 0, 1, 0, x, y, z, norm)
-			_av(s, 0, 1, 1, x, y, z, norm)
+			_av(s, 0, 0, 0, x, y, z, norm, 1, 0)
+			_av(s, 0, 1, 0, x, y, z, norm, 0, 0)
+			_av(s, 0, 1, 1, x, y, z, norm, 0, 1)
 		YPOSF:
 			var norm = Vector3(0, 1, 0)
-			_av(s, 1, 1, 1, x, y, z, norm)
-			_av(s, 0, 1, 1, x, y, z, norm)
-			_av(s, 0, 1, 0, x, y, z, norm)
+			_av(s, 1, 1, 1, x, y, z, norm, 0, 1)
+			_av(s, 0, 1, 1, x, y, z, norm, 1, 1)
+			_av(s, 0, 1, 0, x, y, z, norm, 1, 0)
 			
-			_av(s, 0, 1, 0, x, y, z, norm)
-			_av(s, 1, 1, 0, x, y, z, norm)
-			_av(s, 1, 1, 1, x, y, z, norm)
+			_av(s, 0, 1, 0, x, y, z, norm, 1, 0)
+			_av(s, 1, 1, 0, x, y, z, norm, 0, 0)
+			_av(s, 1, 1, 1, x, y, z, norm, 0, 1)
 		ZPOSF:
 			var norm = Vector3(0, 0, 1)
-			_av(s, 0, 1, 1, x, y, z, norm)
-			_av(s, 1, 1, 1, x, y, z, norm)
-			_av(s, 1, 0, 1, x, y, z, norm)
+			_av(s, 0, 1, 1, x, y, z, norm, 0, 1)
+			_av(s, 1, 1, 1, x, y, z, norm, 1, 1)
+			_av(s, 1, 0, 1, x, y, z, norm, 1, 0)
 			
-			_av(s, 1, 0, 1, x, y, z, norm)
-			_av(s, 0, 0, 1, x, y, z, norm)
-			_av(s, 0, 1, 1, x, y, z, norm)
+			_av(s, 1, 0, 1, x, y, z, norm, 1, 0)
+			_av(s, 0, 0, 1, x, y, z, norm, 0, 0)
+			_av(s, 0, 1, 1, x, y, z, norm, 0, 1)
 		ZNEGF:
 			var norm = Vector3(0, 0, -1)
-			_av(s, 0, 0, 0, x, y, z, norm)
-			_av(s, 1, 0, 0, x, y, z, norm)
-			_av(s, 1, 1, 0, x, y, z, norm)
+			_av(s, 0, 0, 0, x, y, z, norm, 0, 1)
+			_av(s, 1, 0, 0, x, y, z, norm, 1, 1)
+			_av(s, 1, 1, 0, x, y, z, norm, 1, 0)
 			
-			_av(s, 1, 1, 0, x, y, z, norm)
-			_av(s, 0, 1, 0, x, y, z, norm)
-			_av(s, 0, 0, 0, x, y, z, norm)
+			_av(s, 1, 1, 0, x, y, z, norm, 1, 0)
+			_av(s, 0, 1, 0, x, y, z, norm, 0, 0)
+			_av(s, 0, 0, 0, x, y, z, norm, 0, 1)
 
 static func _add_faces(st: SurfaceTool, faces: int, x: int, y: int,z: int) -> void:
 	if faces & XNEGF != 0:
@@ -152,6 +157,7 @@ func _render_chunk() -> void:
 	var mesh = _generate_mesh()
 	
 	mesh_instance.mesh = mesh
+	mesh_instance.material_override = block_material
 	
 	_dirty = false
 
