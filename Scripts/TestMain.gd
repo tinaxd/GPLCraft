@@ -20,8 +20,14 @@ var chunk_load_limit_z = 2
 var last_chunk_x = 0
 var last_chunk_z = 0
 
+var is_chunk_loading = false
+var is_chunk_loading_lock: Mutex
+var chunk_loading_thread: Thread
+
 # Called when the node enters the scene tree for the first time.
 func _ready():
+	is_chunk_loading_lock = Mutex.new()
+	
 	world = WorldData.new(5)
 
 	load_chunk_around(0, 0)
@@ -41,12 +47,23 @@ func chunk_load_check() -> void:
 	var cx: int = current_chunk[0]
 	var cz: int = current_chunk[1]
 	if cx != last_chunk_x or cz != last_chunk_z:
-		load_chunk_around(cx, cz)
+		is_chunk_loading_lock.lock()
+		if not is_chunk_loading:
+			if chunk_loading_thread != null:
+				chunk_loading_thread.wait_to_finish()
+			is_chunk_loading = true
+			chunk_loading_thread = Thread.new()
+			chunk_loading_thread.start(self, "load_chunk_around_async", {
+				"cx": cx,
+				"cz": cz
+			})
+		is_chunk_loading_lock.unlock()
+		
 		last_chunk_x = cx
 		last_chunk_z = cz
 	
 func load_chunk_around(cx: int, cz: int) -> void:
-	print_debug("load_chunk_around("+str(cx)+","+str(cz)+")")
+	print_debug("start load_chunk_around("+str(cx)+","+str(cz)+")")
 	var x1 = cx - chunk_load_limit_x
 	var x2 = cx + chunk_load_limit_x
 	var z1 = cz - chunk_load_limit_z
@@ -55,3 +72,16 @@ func load_chunk_around(cx: int, cz: int) -> void:
 		for z in range(z1, z2+1):
 			var c = world.load_or_create_chunk(x, z)
 			w_renderer.render_chunk(c)
+	
+	is_chunk_loading_lock.lock()
+	is_chunk_loading = false
+	is_chunk_loading_lock.unlock()
+	print_debug("finish load_chunk_around")
+
+func load_chunk_around_async(userdata):
+	load_chunk_around(userdata["cx"], userdata["cz"])
+	
+func _exit_tree():
+	if chunk_loading_thread != null:
+		chunk_loading_thread.wait_to_finish()
+		chunk_loading_thread = null

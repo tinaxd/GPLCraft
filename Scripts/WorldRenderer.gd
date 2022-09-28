@@ -9,9 +9,11 @@ const ChunkRenderer = preload("res://Scripts/ChunkRenderer.gd")
 
 var rendered_chunk_coords = {}
 
+var _tree_lock: Mutex
+
 # Called when the node enters the scene tree for the first time.
 func _ready():
-	pass # Replace with function body.
+	_tree_lock = Mutex.new()
 
 func render_chunk(c: Chunk) -> void:
 	var cx: int = c.cx
@@ -29,7 +31,9 @@ func render_chunk(c: Chunk) -> void:
 	var instance: ChunkRenderer = instance_spatial
 	
 	# add to scene
+	_tree_lock.lock()
 	add_child(instance)
+	_tree_lock.unlock()
 	
 	# set location
 	instance.set_chunk_location(cx, cz)
