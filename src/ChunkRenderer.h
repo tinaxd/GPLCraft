@@ -17,6 +17,8 @@ namespace gplcraft
         bool dirty_ = false;
         godot::MeshInstance *mesh_instance_ = nullptr;
 
+        void render_chunk();
+
     public:
         static void _register_methods();
 
