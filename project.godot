@@ -20,6 +20,11 @@ _global_script_classes=[ {
 "path": "res://Scripts/World/Chunk.gd"
 }, {
 "base": "Reference",
+"class": "WorldData",
+"language": "GDScript",
+"path": "res://Scripts/World/World.gd"
+}, {
+"base": "Reference",
 "class": "WorldGen",
 "language": "GDScript",
 "path": "res://Scripts/World/WorldGen.gd"
@@ -27,6 +32,7 @@ _global_script_classes=[ {
 _global_script_class_icons={
 "Block": "",
 "Chunk": "",
+"WorldData": "",
 "WorldGen": ""
 }
 
