@@ -8,6 +8,28 @@
 
 config_version=4
 
+_global_script_classes=[ {
+"base": "Reference",
+"class": "Block",
+"language": "GDScript",
+"path": "res://Scripts/World/Block.gd"
+}, {
+"base": "Reference",
+"class": "Chunk",
+"language": "GDScript",
+"path": "res://Scripts/World/Chunk.gd"
+}, {
+"base": "Reference",
+"class": "WorldGen",
+"language": "GDScript",
+"path": "res://Scripts/World/WorldGen.gd"
+} ]
+_global_script_class_icons={
+"Block": "",
+"Chunk": "",
+"WorldGen": ""
+}
+
 [application]
 
 config/name="gplcraft"
