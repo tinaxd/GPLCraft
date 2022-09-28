@@ -34,9 +34,9 @@ func set_chunk_location(cx: int, cz: int) -> void:
 
 enum {XPOSF=1, XNEGF=2, YPOSF=4, YNEGF=8, ZPOSF=16, ZNEGF=32}
 
-static func _av(st: SurfaceTool, x: int, y: int, z: int, bx: int, by: int, bz: int, normal: Vector3, ux: int, uy: int) -> void:
-	var uxf = (16.0/256.0) * (2 + (1 - ux))
-	var uyf = (16.0/256.0) * (15 + (1 - uy))
+static func _av(st: SurfaceTool, x: int, y: int, z: int, bx: int, by: int, bz: int, normal: Vector3, ux: int, uy: int, tx: int, ty: int) -> void:
+	var uxf = (16.0/256.0) * (tx + ux)
+	var uyf = (16.0/256.0) * (ty + uy)
 	st.add_uv(Vector2(uxf, uyf))
 	st.add_normal(normal)
 	st.add_vertex(Vector3(x+bx, y+by, z+bz))
@@ -45,58 +45,58 @@ static func _add_face(s: SurfaceTool, face: int, x: int, y: int,z: int)->void:
 	match face:
 		XPOSF:
 			var norm = Vector3(1, 0, 0)
-			_av(s, 1, 0, 1, x, y, z, norm, 0, 1)
-			_av(s, 1, 1, 1, x, y, z, norm, 1, 1)
-			_av(s, 1, 1, 0, x, y, z, norm, 1, 0)
+			_av(s, 1, 0, 1, x, y, z, norm, 0, 1, 0, 15)
+			_av(s, 1, 1, 1, x, y, z, norm, 0, 0, 0, 15)
+			_av(s, 1, 1, 0, x, y, z, norm, 1, 0, 0, 15)
 			
-			_av(s, 1, 1, 0, x, y, z, norm, 1, 0)
-			_av(s, 1, 0, 0, x, y, z, norm, 0, 0)
-			_av(s, 1, 0, 1, x, y, z, norm, 0, 1)
+			_av(s, 1, 1, 0, x, y, z, norm, 1, 0, 0, 15)
+			_av(s, 1, 0, 0, x, y, z, norm, 1, 1, 0, 15)
+			_av(s, 1, 0, 1, x, y, z, norm, 0, 1, 0, 15)
 		YNEGF:
-			var norm = Vector3(0, 1, 0)
-			_av(s, 0, 0, 1, x, y, z, norm, 0, 1)
-			_av(s, 1, 0, 1, x, y, z, norm, 1, 1)
-			_av(s, 1, 0, 0, x, y, z, norm, 1, 0)
+			var norm = Vector3(0, -1, 0)
+			_av(s, 0, 0, 1, x, y, z, norm, 1, 0, 2, 15)
+			_av(s, 1, 0, 1, x, y, z, norm, 1, 1, 2, 15)
+			_av(s, 1, 0, 0, x, y, z, norm, 0, 1, 2, 15)
 			
-			_av(s, 1, 0, 0, x, y, z, norm, 1, 0)
-			_av(s, 0, 0, 0, x, y, z, norm, 0, 0)
-			_av(s, 0, 0, 1, x, y, z, norm, 0, 1)
+			_av(s, 1, 0, 0, x, y, z, norm, 0, 1, 2, 15)
+			_av(s, 0, 0, 0, x, y, z, norm, 0, 0, 2, 15)
+			_av(s, 0, 0, 1, x, y, z, norm, 1, 0, 2, 15)
 		XNEGF:
 			var norm = Vector3(-1, 0, 0)
-			_av(s, 0, 1, 1, x, y, z, norm, 0, 1)
-			_av(s, 0, 0, 1, x, y, z, norm, 1, 1)
-			_av(s, 0, 0, 0, x, y, z, norm, 1, 0)
+			_av(s, 0, 1, 1, x, y, z, norm, 1, 0, 0, 15)
+			_av(s, 0, 0, 1, x, y, z, norm, 1, 1, 0, 15)
+			_av(s, 0, 0, 0, x, y, z, norm, 0, 1, 0, 15)
 			
-			_av(s, 0, 0, 0, x, y, z, norm, 1, 0)
-			_av(s, 0, 1, 0, x, y, z, norm, 0, 0)
-			_av(s, 0, 1, 1, x, y, z, norm, 0, 1)
+			_av(s, 0, 0, 0, x, y, z, norm, 0, 1, 0, 15)
+			_av(s, 0, 1, 0, x, y, z, norm, 0, 0, 0, 15)
+			_av(s, 0, 1, 1, x, y, z, norm, 1, 0, 0, 15)
 		YPOSF:
 			var norm = Vector3(0, 1, 0)
-			_av(s, 1, 1, 1, x, y, z, norm, 0, 1)
-			_av(s, 0, 1, 1, x, y, z, norm, 1, 1)
-			_av(s, 0, 1, 0, x, y, z, norm, 1, 0)
+			_av(s, 1, 1, 1, x, y, z, norm, 1, 0, 1, 15)
+			_av(s, 0, 1, 1, x, y, z, norm, 1, 1, 1, 15)
+			_av(s, 0, 1, 0, x, y, z, norm, 0, 1, 1, 15)
 			
-			_av(s, 0, 1, 0, x, y, z, norm, 1, 0)
-			_av(s, 1, 1, 0, x, y, z, norm, 0, 0)
-			_av(s, 1, 1, 1, x, y, z, norm, 0, 1)
+			_av(s, 0, 1, 0, x, y, z, norm, 0, 1, 1, 15)
+			_av(s, 1, 1, 0, x, y, z, norm, 0, 0, 1, 15)
+			_av(s, 1, 1, 1, x, y, z, norm, 1, 0, 1, 15)
 		ZPOSF:
 			var norm = Vector3(0, 0, 1)
-			_av(s, 0, 1, 1, x, y, z, norm, 0, 1)
-			_av(s, 1, 1, 1, x, y, z, norm, 1, 1)
-			_av(s, 1, 0, 1, x, y, z, norm, 1, 0)
+			_av(s, 0, 1, 1, x, y, z, norm, 0, 0, 0, 15)
+			_av(s, 1, 1, 1, x, y, z, norm, 1, 0, 0, 15)
+			_av(s, 1, 0, 1, x, y, z, norm, 1, 1, 0, 15)
 			
-			_av(s, 1, 0, 1, x, y, z, norm, 1, 0)
-			_av(s, 0, 0, 1, x, y, z, norm, 0, 0)
-			_av(s, 0, 1, 1, x, y, z, norm, 0, 1)
+			_av(s, 1, 0, 1, x, y, z, norm, 1, 1, 0, 15)
+			_av(s, 0, 0, 1, x, y, z, norm, 0, 1, 0, 15)
+			_av(s, 0, 1, 1, x, y, z, norm, 0, 0, 0, 15)
 		ZNEGF:
 			var norm = Vector3(0, 0, -1)
-			_av(s, 0, 0, 0, x, y, z, norm, 0, 1)
-			_av(s, 1, 0, 0, x, y, z, norm, 1, 1)
-			_av(s, 1, 1, 0, x, y, z, norm, 1, 0)
+			_av(s, 0, 0, 0, x, y, z, norm, 1, 1, 0, 15)
+			_av(s, 1, 0, 0, x, y, z, norm, 0, 1, 0, 15)
+			_av(s, 1, 1, 0, x, y, z, norm, 0, 0, 0, 15)
 			
-			_av(s, 1, 1, 0, x, y, z, norm, 1, 0)
-			_av(s, 0, 1, 0, x, y, z, norm, 0, 0)
-			_av(s, 0, 0, 0, x, y, z, norm, 0, 1)
+			_av(s, 1, 1, 0, x, y, z, norm, 0, 0, 0, 15)
+			_av(s, 0, 1, 0, x, y, z, norm, 1, 0, 0, 15)
+			_av(s, 0, 0, 0, x, y, z, norm, 1, 1, 0, 15)
 
 static func _add_faces(st: SurfaceTool, faces: int, x: int, y: int,z: int) -> void:
 	if faces & XNEGF != 0:
