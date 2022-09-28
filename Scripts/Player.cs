@@ -49,6 +49,23 @@ public class Player : Spatial
         localInputVelocity = localBasis.XformInv(globalInputVelocity);
 
         Translate(localInputVelocity);
+
+        PointerLockCheck();
+    }
+
+    private void PointerLockCheck()
+    {
+        if (Input.IsActionJustPressed("ui_cancel"))
+        {
+            if (Input.MouseMode == Input.MouseModeEnum.Captured)
+            {
+                Input.MouseMode = Input.MouseModeEnum.Visible;
+            }
+            else
+            {
+                Input.MouseMode = Input.MouseModeEnum.Captured;
+            }
+        }
     }
 
     public override void _Input(InputEvent @event)

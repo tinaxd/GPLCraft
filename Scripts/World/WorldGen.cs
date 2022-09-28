@@ -5,25 +5,37 @@ namespace GPLCraft
     public class WorldGen
     {
         private int seed;
+        private SharpNoise.Modules.Perlin perlin;
+        // private Godot.OpenSimplexNoise noise;
 
         public WorldGen(int seed)
         {
             this.seed = seed;
+            perlin = new SharpNoise.Modules.Perlin()
+            {
+                Seed = seed
+            };
+
+            // noise = new Godot.OpenSimplexNoise();
+            // noise.Seed = seed;
+            // noise.Octaves = 4;
+            // noise.Period = 20.0f;
+            // noise.Persistence = 0.8f;
         }
 
-        private float[,] GenerateHeight(int cx, int cz)
+        private int[,] GenerateHeight(int cx, int cz)
         {
-            SimplexNoise.Noise.Seed = seed;
-            int x = 16, z = 16;
-            float scale = 0.05f;
-            float[,] noiseValues = SimplexNoise.Noise.Calc2D(x, z, scale);
+            int SizeX = Chunk.SizeX, SizeZ = Chunk.SizeZ;
+            int[,] noiseValues = new int[SizeX, SizeZ];
 
-            for (int i = 0; i < x; i++)
+            for (int i = 0; i < SizeX; i++)
             {
-                for (int j = 0; j < z; j++)
+                for (int j = 0; j < SizeZ; j++)
                 {
-                    var v = noiseValues[i, j];
-                    noiseValues[i, j] = (float)(64.0 + (v / 256.0 * 16.0));
+                    var fv = perlin.GetValue(cx + i / (float)SizeX, cz + j / (float)SizeZ, 0);
+                    // var fv = noise.GetNoise2d(cx + i / (float)SizeX, cz + j / (float)SizeZ) * 256.0;
+                    fv = (float)(64.0 + (fv / 256.0 * 16.0));
+                    noiseValues[i, j] = (int)fv;
                 }
             }
 
@@ -32,7 +44,7 @@ namespace GPLCraft
 
         public Chunk GenerateChunk(int cx, int cz)
         {
-            float[,] heights = GenerateHeight(cx, cz);
+            int[,] heights = GenerateHeight(cx, cz);
             Chunk c = new Chunk(cx, cz);
             for (int i = 0; i < 16; i++)
             {
@@ -42,7 +54,7 @@ namespace GPLCraft
                     {
                         // dirt block
                         Block d = new Block(1);
-                        c.SetBlock(i, j, k, d);
+                        c.SetBlock(i, k, j, d);
                     }
                 }
             }

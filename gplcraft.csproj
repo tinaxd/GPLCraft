@@ -4,6 +4,6 @@
     <CopyLocalLockFileAssemblies>true</CopyLocalLockFileAssemblies>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="SimplexNoise" Version="2.0.0" />
+    <PackageReference Include="SharpNoise" Version="0.12.1.1" />
   </ItemGroup>
 </Project>
